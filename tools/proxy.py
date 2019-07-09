@@ -6,7 +6,7 @@ from pywinauto import Desktop, Application
 from pywinauto.keyboard import send_keys
 from pywinauto.findwindows import ElementNotFoundError
 from pywinauto.timings import TimeoutError
-####################################################
+
 print("Read input params")
 print('First arg - path to Declaration 2018')  
 path = str(sys.argv[1])
@@ -14,8 +14,39 @@ path = str(sys.argv[1])
 print('Second arg - data json for Declaration 2018')
 ## todo проверка входных параметров 
 data = json.loads(sys.argv[2])
-number_k= data['declaration']['block1']['number_k']
 
+number_i= data['declaration']['block1']['number_i'] # 0101
+number_k= int(data['declaration']['block1']['number_k']) # 0
+oktmo = data['declaration']['block1']['oktmo'] # '04701000'
+radio_btn1 = data['declaration']['block1']['radio_btn1'] # 'Иное физическое лицо'
+radio_btn2 = data['declaration']['block1']['radio_btn2'] # 'Лично'
+
+last_name = data['declaration']['block2']['lastname'] # 'ИВАНОВА'
+first_name = data['declaration']['block2']['firstname'] # 'ЮЛИЯ'
+sir_name = data['declaration']['block2']['sirname'] #  ВАЛЕРЬЕВНА
+inn = data['declaration']['block2']['inn'] # '780204893183'
+birth_place = data['declaration']['block2']['birth_place'] # 'Г.РОСТОВ-НА-ДОНУ' 
+birth_date = data['declaration']['block2']['birth_date'] # '02.06.1982'
+phone = data['declaration']['block2']['phone'] # '89135555555'
+type_doc = data['declaration']['block2']['type_doc'] # '21'
+doc_number = data['declaration']['block2']['doc_number'] #  '04 09 934566'
+doc_from = data['declaration']['block2']['doc_from'] # 'ТП №75 ОТДЕЛА УФМС РОССИИ ПО САНКТ-ПЕТЕРБУРГУ И ЛЕНИНГРАДСКОЙ ОБЛ. В ФРУНЗЕНСКОМ Р-НЕ ГОР.САНКТ-ПЕТЕРБУРГА КОД ПОДРАЗДЕЛЕНИЯ 780-075'
+doc_date = data['declaration']['block2']['doc_date'] # '02.03.2002'
+
+money_source_company = data['declaration']['block3']['money_source_company'] 
+#   '04701000'
+#   '2464001001'
+#   '2464231675'
+#    PRAVOCARD
+money_dec = data['declaration']['block3']['money_dec']  # '14316'
+money_source = data['declaration']['block3']['money_source']
+
+money_source_bottom_table = data['declaration']['block3']['money_source_bottom_table']
+
+code_number_object = data['declaration']['block5']['code_number_object'] # 1
+sign_taxplayer = data['declaration']['block5']['sign_taxplayer'] # 1
+object_name = data['declaration']['block5']['object_name'] # 2 
+object_data = data['declaration']['block5']['object_data']
 app = Application(backend='uia').start(path)
 main_window = app.window(title='Без имени - Декларация 2018')
 main_window.set_focus()
@@ -164,34 +195,34 @@ print('Block №1 - Задание условий')
 
 navigation_panel = main_window.descendants(class_name="TPanel")[1]
 
-# RETURN THIS select_from_dict('Номер инспекции', '2411')
-select_from_dict('Номер инспекции', number_k)
-set_spinner('Номер корректировки', 0)
-fill_input('ОКТМО', '04701000', 'TMaskedEdit')
-select_radio('Иное физическое лицо')
+
+select_from_dict('Номер инспекции', number_i)
+set_spinner('Номер корректировки', number_k)
+fill_input('ОКТМО', oktmo, 'TMaskedEdit')
+select_radio(radio_btn1)
 
 ## todo проверка - добавляется количество заполняемых данных 
 ## первое устанавливается по-умолчанию
 ## select_checkbox('Учитываемые "справками о доходах физического лица", доходы по договорам')
 
-select_radio('Лично')
+select_radio(radio_btn2)
 print('Block №1 - Сведения о декларанте')
 _select_tab(1) 
-fill_input('Фамилия', 'ИВАНОВА', 'TMaskedEdit')
-fill_input('Имя', 'ЮЛИЯ','TMaskedEdit')
-fill_input('Отчество', 'ВАЛЕРЬЕВНА', 'TMaskedEdit')
-fill_input('ИНН', '780204893183', 'TMaskedEdit')
-fill_input('Место рождения', 'Г.РОСТОВ-НА-ДОНУ', 'TMaskedEdit')
-fill_input('Дата рождения', '02.06.1982', 'TTestMaskD')
+fill_input('Фамилия', last_name, 'TMaskedEdit')
+fill_input('Имя', first_name,'TMaskedEdit')
+fill_input('Отчество', sir_name, 'TMaskedEdit')
+fill_input('ИНН', inn , 'TMaskedEdit')
+fill_input('Место рождения', birth_place, 'TMaskedEdit')
+fill_input('Дата рождения', birth_date, 'TTestMaskD')
 
-fill_only_one_input('Контактный телефон', '89135555555', 'TMaskedEdit')
-select_from_dict('Вид документа', '21')
-fill_input_mask('Серия и номер', '04 09 934566', 'TMaskedDocEdit')
-fill_input_mask('Кем выдан', 'ТП №75 ОТДЕЛА УФМС РОССИИ ПО САНКТ-ПЕТЕРБУРГУ И ЛЕНИНГРАДСКОЙ ОБЛ. В ФРУНЗЕНСКОМ Р-НЕ ГОР.САНКТ-ПЕТЕРБУРГА КОД ПОДРАЗДЕЛЕНИЯ 780-075', 'TMaskedEdit')
-fill_input('Дата выдачи', '02.03.2002', 'TTestMaskD')
-
+fill_only_one_input('Контактный телефон', phone, 'TMaskedEdit')
+select_from_dict('Вид документа', type_doc)
+fill_input_mask('Серия и номер', doc_number , 'TMaskedDocEdit')
+fill_input_mask('Кем выдан', doc_from , 'TMaskedEdit')
+fill_input('Дата выдачи', doc_date, 'TTestMaskD')
 
 print('Block №1 - Доходы, полученные в РФ')
+
 _select_tab(2)
 ## todo пока клик настроен только на кнопку 13 в панели
 ## она устанавливается по-умолчанию 
@@ -203,20 +234,20 @@ add_source_panel[8].click_input(coords=(10, 55))
 print('Source money Modal window filling')
 dw = app.window(title='Источник выплаты')
 inner_edit = dw.window(class_name="TPanel").descendants();
-inner_edit[1].type_keys('04701000')
-inner_edit[3].type_keys('2464001001')
-inner_edit[4].type_keys('2464231675')
+inner_edit[1].type_keys(money_source_company[0])
+inner_edit[3].type_keys(money_source_company[1])
+inner_edit[4].type_keys(money_source_company[2])
 
 ## todo проверить варианты ввода на русском языке 
 ## пока проблема 
-inner_edit[5].type_keys('IKEA')
+inner_edit[5].type_keys(money_source_company[3])
 
 inner_checkbox = dw.window(class_name="TPanel").descendants(class_name="TCheckBox")
 inner_checkbox[1].click_input()
 ok_b = dw.window(title='Да')
 ok_b.click_input()
 edit_form = add_money_source_allpanel.descendants(class_name='TMaskedEdit')
-edit_form[1].set_text('14316')
+edit_form[1].set_text(money_dec)
 
 print('Info money source Modal Window filling')
 add_money_source_allpanel = main_window.descendants(class_name='TPanel')[0]
@@ -229,7 +260,7 @@ print('Open dictionary of the type of money')
 dw = app.window(title='Справочник видов доходов')
 l = dw.window(class_name="TListView")
 l.set_focus()
-vl = l.window(title='1011')
+vl = l.window(title= money_source[0]['code'])
 for _ in range(1000):
     try:
         #if vl.is_visible(timeout=0.5):
@@ -243,8 +274,8 @@ ok_b.click_input()
 
 print('Dictionary of the type of money source')
 edit_buttons = app.window(title='Сведения о доходе').descendants(class_name="TMaskedEdit")
-edit_buttons[2].set_text('10000')
-edit_buttons[1].set_text('1')
+edit_buttons[2].set_text( money_source[0]['money_sum'])
+edit_buttons[1].set_text( money_source[0]['month'])
 
 app.window(title='Сведения о доходе').window(title='Да').click_input()
 ## to do цикл в зависимости от входных данных
@@ -263,7 +294,7 @@ finance_buttons[3].click_input();
 dw = app.window(title='Справочник видов доходов')
 l = dw.window(class_name="TListView")
 l.set_focus()
-vl = l.window(title='1011')
+vl = l.window(title= money_source[1]['code'])
 
 for _ in range(1000):
 	try:
@@ -277,8 +308,8 @@ ok_b = dw.window(title='Да')
 ok_b.click_input()
 
 edit_buttons = app.window(title='Сведения о доходе').descendants(class_name="TMaskedEdit")
-edit_buttons[2].set_text('10000')
-edit_buttons[1].set_text('2')
+edit_buttons[2].set_text(money_source[1]['money_sum'])
+edit_buttons[1].set_text(money_source[1]['month'])
 app.window(title='Сведения о доходе').window(title='Да').click_input()
 
 add_money_source_allpanel = main_window.descendants(class_name='TPanel')[0]
@@ -293,7 +324,7 @@ finance_buttons[3].click_input();
 dw = app.window(title='Справочник видов доходов')
 l = dw.window(class_name="TListView")
 l.set_focus()
-vl = l.window(title='1011')
+vl = l.window(title= money_source[2]['code'])
 
 for _ in range(1000):
 	try:
@@ -307,11 +338,10 @@ ok_b = dw.window(title='Да')
 ok_b.click_input()
 
 edit_buttons = app.window(title='Сведения о доходе').descendants(class_name="TMaskedEdit")
-edit_buttons[2].set_text('10000')
-edit_buttons[1].set_text('3')
+edit_buttons[2].set_text(money_source[2]['money_sum'])
+edit_buttons[1].set_text(money_source[2]['month'])
 
 app.window(title='Сведения о доходе').window(title='Да').click_input()
-
 
 print('Bottom table filling')
 add_money_source_allpanel = main_window.descendants(class_name='TPanel')[0]
@@ -325,7 +355,7 @@ finance_buttons[2].click_input();
 dw = app.window(title='Справочник видов вычетов')
 l = dw.window(class_name="TListView")
 l.set_focus()
-vl = l.window(title='126')
+vl = l.window(title= money_source_bottom_table['code'])
 
 for _ in range(1000):
     try:
@@ -340,7 +370,7 @@ ok_b.click_input()
 
 print('Get dictionary another money source')
 edit_buttons = app.window(title='Вычеты, указанные в разделе 3 справки 2-ндфл').descendants(class_name='TMaskedEdit')
-edit_buttons[0].set_text('16800')
+edit_buttons[0].set_text(money_source_bottom_table['money']) # 16800
 app.window(title='Вычеты, указанные в разделе 3 справки 2-ндфл').window(title='Да').click_input()
 
 print("Block 3")
@@ -348,7 +378,6 @@ print("Block 3")
 _select_tab(5) 
 check_boxes = main_window.descendants(class_name='TCheckBox')
 check_boxes[0].click_input()
-
 
 add_money_source_allpanel = main_window.descendants(class_name='TPanel')[0]
 add_source_panel = add_money_source_allpanel.descendants(class_name='TPanel')
@@ -360,32 +389,33 @@ combo_boxes = app.window(title='Данные объекта').descendants(class_
 # Код номера объекта  Кадастровый номер 
 combo_boxes[0].click_input()
 cmb1 = combo_boxes[0].descendants()
-cmb1[1].click_input()
+cmb1[int(code_number_object)].click_input()
 # 1 - Кадастровый номер 
 
 # Признак налогоплательщика Собственник объекта 
 combo_boxes[1].click_input()
 cmb1 = combo_boxes[1].descendants()
-cmb1[1].click_input()
+cmb1[int(sign_taxplayer)].click_input()
 # 0 - Родитель несовершеннолетнего собственника объекта
 # 1 - Собственник объекта 
 
 # Наименование объекта 
 combo_boxes[2].click_input()
 cmb1 = combo_boxes[2].descendants()
-cmb1[2].click_input()
+cmb1[int(object_name)].click_input()
 # 0 - Земельный участок для индивидуального жилищного строительства 
 # 1 - Жилой дом
 # 2 - Квартира
 
 masked_edits = app.window(title='Данные объекта').descendants(class_name='TMaskedEdit')
-masked_edits[5].set_text('24:50:0400417:1739')
-masked_edits[4].set_text('660135 Красноярский край, г.Красноярск, ул. Тополей, д.5, кв. 1')
-masked_edits[1].set_text('2000000')
-masked_edits[0].set_text('204090')
+
+masked_edits[5].set_text(object_data['object_number'])
+masked_edits[4].set_text(object_data['object_address']) 
+masked_edits[1].set_text(object_data['object_sum'])
+masked_edits[0].set_text(object_data['object_del'])
 
 masked_date_edits = app.window(title='Данные объекта').descendants(class_name='TTestMaskD')
-masked_date_edits[1].set_text('17.06.2014')
+masked_date_edits[1].set_text(object_data['object_date']) 
 
 app.window(title='Данные объекта').window(title='Да').click_input()
 
@@ -405,7 +435,7 @@ dw.descendants(class_name='Button')[0].click_input()
 app.window(title='Декларация 2018').descendants(class_name='Button')[0].click_input()
 
 ## todo проверка на ошибку - куча всплывающих окон может быть 
-app.window(title='Декларация 2018').descendants(class_name='Button')[0].click_input()
+#app.window(title='Декларация 2018').descendants(class_name='Button')[0].click_input()
 
 print('Declaration is Ready!')
 app.kill()
